@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>1. Верстка блока</title>
+
+<link href="index.css" rel="stylesheet">
+<main></main>
+
+<script>
+async function loadImage(url) {   
+    return new Promise( (res) => {
+        let img = new Image();
+        img.src = url;
+        img.onload = () => {
+            res(img);
+        }
+    })
+}
+function cardContent(data) {
+  
+    let imageContainer = document.createElement('div'); imageContainer.classList.add('image');
+        loadImage(data.image).then( img => imageContainer.append(img));
+        if (data.badge) {
+            let imageBadge = document.createElement('div'); 
+                imageBadge.classList.add('image');
+                imageBadge.style.color = data.badge_color;
+                imageBadge.style.backgroundColor = data.badge_background;
+                imageBadge.innerHTML = data.badge;
+                imageContainer.append(imageBadge);
+        }
+
+    let content = document.createElement('div'); content.classList.add('content');
+        let title = document.createElement('div'); title.classList.add('title'); title.innerHTML = data.title;
+        let duration = document.createElement('div'); duration.classList.add('duration');
+            let durationBadge = new Image;
+                durationBadge.src = "clock.svg";
+            duration.append(durationBadge, data.duration);
+        let ul = document.createElement('ul');
+            data.list.map( list => {
+                let li = document.createElement('li');
+                li.innerHTML = list;
+                ul.append(li)
+            });
+            let li = document.createElement('li'); li.classList.add('next-cruise');
+                li.innerHTML = "Ближайший рейс сегодня";
+                let time = document.createElement('div'); time.classList.add('time');
+                console.log(data.time_today.length);
+                if (data.time_today.length < 5) {                    
+                    data.time_today.map( el => {
+                        let timeCont = document.createElement('div');
+                        timeCont.innerHTML = el;
+                        timeCont.onclick = () => alert('Вы выбрали время ' + el);
+                        time.append(timeCont);
+                    });
+                } else {
+                    for (let i = 0; i < 3; i++) {
+                        let timeCont = document.createElement('div');
+                        timeCont.innerHTML = data.time_today[i];
+                        timeCont.onclick = () => alert('Вы выбрали время ' + data.time_today[i]);
+                        time.append(timeCont);
+                    }
+                    let showMore = document.createElement('div');
+                        showMore.innerHTML = 'ещё...';
+                        showMore.onclick = () => {
+                            let moreContainer = document.createElement('div');
+                            moreContainer.classList.add('more-time');
+                            data.time_today.map( el => {
+                                let timeCont = document.createElement('div');
+                                timeCont.innerHTML = el;
+                                timeCont.onclick = () => {
+                                    alert('Вы выбрали время ' + el);
+                                    moreContainer.style.opacity = '0';                                    
+                                    setTimeout(() => { li.removeChild(moreContainer);}, 200);
+                                }
+                                moreContainer.append(timeCont);
+                            });
+                            let closeBtn = document.createElement('input');
+                                closeBtn.type = 'button';
+                                closeBtn.value = 'Закрыть';
+                                closeBtn.onclick = () => {
+                                    moreContainer.style.opacity = '0';                                    
+                                    setTimeout(() => { li.removeChild(moreContainer);}, 200);
+                                }
+                                moreContainer.append(closeBtn);
+                            li.append(moreContainer);
+                            setTimeout(() => { moreContainer.style.opacity = '1';}, 10);
+                        }
+                        time.append(showMore);
+                }    
+                li.append(time);
+            ul.append(li);
+
+        let priceAndMore = document.createElement('div'); priceAndMore.classList.add('price-more');
+            let price = document.createElement('div'); price.classList.add('price');
+                price.innerHTML = data.price_online + ' ₽';
+                if (data.price_on_place) {
+                    let price2 = document.createElement('span');
+                        price2.innerHTML = data.price_on_place + ' ₽ на причале';
+                        price.append(price2);
+                }
+            let more = document.createElement('input'); more.classList.add('more');
+                more.type = 'button';
+                more.value = 'Подробнее';
+                more.onclick = () => alert('¯\_(ツ)_/¯');
+            priceAndMore.append(price, more);
+            
+        content.append(title, duration, ul, priceAndMore);
+    
+    return [imageContainer, content];
+}
+
+async function loadCards() {
+    let response = await fetch('data.json');
+    const data = await response.json();
+
+    let cards = await Promise.all(data.map( async (info) => {
+        let card = document.createElement('div'); card.setAttribute('class','card');
+
+        let content = await cardContent(info);
+        content.map((el) => { if (el) card.append(el) } );
+        return card;
+    }));
+
+    let main = document.querySelector('main');
+    cards.map((card) => { if (card) { main.append(card); setTimeout(() => { card.style.opacity = '1';}, 200) }});
+}
+
+loadCards();
+</script>
