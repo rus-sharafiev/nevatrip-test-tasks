@@ -1,6 +1,3 @@
-# Задание 1. Верстка блока
+# Задание 1. Билеты на событие
 
-Я решил что удобно будет создавать катрочки из БД, поэтому страница динамическая.
-В данном случае источник data.json.
-
-Демо https://dev.srrlab.ru/first/1/
+![Задача 1](https://github.com/rus-sharafiev/tmdb/blob/master/screenshot.png?raw=true)
